@@ -1,5 +1,5 @@
 import random
-
+import numpy
 
 #black jack simple optmific simulation
 #main algorithim
@@ -7,8 +7,6 @@ import random
 #card counting for bet size
 #card counting for resuffle
 #calculate win loss
-
-
 
 Values = ["two", "three", "four", "five", "six", "seven", "eight",
         "nine", "ten", "jack", "queen", "king", "ace"]
@@ -80,9 +78,14 @@ class Deck:
             self.deck[num2] = tmp
             i += 1
 
+class Player:
+    def __init__(self, hand):
+        self.hand = hand
 
-
-    
+class Dealer:
+    def __init__(self, hand):
+        self.hand = hand
+        
 
 if __name__ == "__main__":
     shoe = Deck(1)
