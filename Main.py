@@ -1,5 +1,5 @@
 import random
-import numpy
+#import numpy
 
 #black jack simple optmific simulation
 #main algorithim
@@ -43,7 +43,7 @@ class Card:
         if (self.f == "ten"):
             return 10
         if (self.f == "ace"):
-            return (11, 1)
+            return 11
         return 10
     
     def printCard(self):
@@ -53,6 +53,12 @@ class Card:
         print("|" + self.f + (5 - len(self.f)) * " " +  "|")
         print(self.s + "-----" + self.s)
 
+    def outside(self):
+        print(self.s + "-----" + self.s, end="")
+    
+    def inside(self):
+        print("|" + self.f + (5 - len(self.f)) * " " +  "|", end="")
+
 class Deck:
     def __init__(self, numberofdecks):
         self.n = numberofdecks
@@ -61,12 +67,14 @@ class Deck:
             for suit in Suits:
                 for face in Values:
                     self.deck.append(Card(face, suit))
-        print(len(self.deck))
                     
     def printDeck(self):
         for val in self.deck:
             print(val.getCard())
-    
+
+    def deal(self):
+        return self.deck.pop()
+            
     def shuffleDeck(self):
         i = 0
         swaps = random.randrange(1000, 1200)
@@ -79,20 +87,92 @@ class Deck:
             i += 1
 
 class Player:
-    def __init__(self, hand):
-        self.hand = hand
+    def __init__(self, usershand):
+        self.hand = usershand
 
-class Dealer:
-    def __init__(self, hand):
-        self.hand = hand
+    def getValue(self):
+        self.hand.sort(key=lambda x: x.getValue())
+        amount = 0
+        for card in self.hand:
+            amount += card.getValue()
+            if amount > 21 and card.getValue() == 11:
+                amount -= 11 
+                amount += 1
+        if amount > 21:
+            return -1
+        else:
+            return amount    
+
+    def hit(self, card):
+        self.hand.append(card)
+
+    def printHand(self):
+        for card in self.hand:
+            card.outside()
+            print(" ", end=" ")
+        print("")
+        for i in range(0, 3):
+            for card in self.hand:
+                card.inside()
+                print(" ", end=" ")
+            print("")
+        for card in self.hand:
+            card.outside()
+            print(" ", end=" ")
+        print("")
+        
         
 
 if __name__ == "__main__":
     shoe = Deck(1)
     shoe.shuffleDeck()
 
+    table = list()
     
+    for x in range(0, 3):
+        hand = list()
+        hand.append(shoe.deal())
+        hand.append(shoe.deal())
+        table.append(Player(hand))
     
+    dealerHand = list()
+    dealerHand.append(shoe.deal())
+    dealerHand.append(shoe.deal())
+    dealer = Player(dealerHand)
+
+    for player in table:
+        while True:
+            player.printHand()
+            print(player.getValue())
+            if player.getValue() == 21:
+                print("You Win")
+                exit()
+            decision = input("hit or stand: ")
+            if decision == "hit":
+                player.hit(shoe.deal())
+                if player.getValue() == -1:
+                    player.printHand()
+                    print("Busted")
+                    exit()
+            elif decision == "stand":
+                break
+    
+    print("DEALER TIME:")
+    while True:
+        dealer.printHand()
+        if dealer.getValue() == -1:
+            print("dealer busted player wins")
+        if dealer.getValue() < 17:
+            dealer.hit(shoe.deal())
+        else:
+            break
+    
+    if dealer.getValue() > player1.getValue():
+        print("Dealer Wins")
+    elif dealer.getValue() == player1.getValue():  
+        print("Push")
+    elif dealer.getValue() < player1.getValue():  
+        print("Player wins")
 
 
 
