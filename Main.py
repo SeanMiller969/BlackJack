@@ -74,6 +74,9 @@ class Deck:
 
     def deal(self):
         return self.deck.pop()
+
+    def cardsLeft(self):
+        return len(self.deck)
             
     def shuffleDeck(self):
         i = 0
@@ -89,6 +92,8 @@ class Deck:
 class Player:
     def __init__(self, usershand):
         self.hand = usershand
+        self.wins = 0
+        self.losses = 0
 
     def getValue(self):
         self.hand.sort(key=lambda x: x.getValue())
@@ -103,8 +108,20 @@ class Player:
         else:
             return amount    
 
+    def firstCardValue(self):
+        return self.hand[0].getValue()
+
     def hit(self, card):
         self.hand.append(card)
+
+    def win(self):
+        self.wins += 1
+
+    def lose(self):
+        self.losses += 1
+
+    def winloss(self):
+        return float(self.wins) / float(self.wins + self.losses)
 
     def printHand(self):
         for card in self.hand:
@@ -120,26 +137,50 @@ class Player:
             card.outside()
             print(" ", end=" ")
         print("")
-        
-        
+    
+    def dealerPlay(self, shoe):
+        while True:
+            if self.getValue() == -1:
+                break
+            elif self.getValue() < 17:
+                self.hit(shoe.deal())
+            else:
+                break
+    
+    def playerStratOptimalPlay(self, shoe, dealerCardValue): 
+        while(True):
+            if self.getValue() == -1:
+                return
+            elif self.getValue() >= 17:
+                return
+            elif dealerCardValue <= 6 and self.getValue() > 11:
+                return
+            else:
+                self.hit(shoe.deal())
+
+
+
+    def reset(self):
+        self.hand = list()
 
 if __name__ == "__main__":
     shoe = Deck(1)
     shoe.shuffleDeck()
 
-    table = list()
     
-    for x in range(0, 3):
-        hand = list()
-        hand.append(shoe.deal())
-        hand.append(shoe.deal())
-        table.append(Player(hand))
+    
+    hand = list()
+    hand.append(shoe.deal())
+    hand.append(shoe.deal())
+    player = Player(hand)
     
     dealerHand = list()
     dealerHand.append(shoe.deal())
     dealerHand.append(shoe.deal())
     dealer = Player(dealerHand)
 
+
+    '''
     for player in table:
         while True:
             player.printHand()
@@ -156,23 +197,38 @@ if __name__ == "__main__":
                     exit()
             elif decision == "stand":
                 break
+
+    '''
+
+
     
-    print("DEALER TIME:")
-    while True:
-        dealer.printHand()
-        if dealer.getValue() == -1:
-            print("dealer busted player wins")
-        if dealer.getValue() < 17:
-            dealer.hit(shoe.deal())
+    for i in  range(0, 1000000):
+        player.playerStratOptimalPlay(shoe, dealer.firstCardValue())
+        if player.getValue() != -1:
+            dealer.dealerPlay(shoe)
+            if player.getValue() > dealer.getValue():
+                player.win()
+                dealer.lose()
+            else:
+                player.lose()
+                dealer.win()
         else:
-            break
+            dealer.win()
+            player.lose()
+
+        if shoe.cardsLeft() < 14:
+            shoe = Deck(1)
+            shoe.shuffleDeck()
+        player.reset()
+        player.hit(shoe.deal())
+        player.hit(shoe.deal())
+        dealer.reset()
+        dealer.hit(shoe.deal())
+        dealer.hit(shoe.deal())
     
-    if dealer.getValue() > player1.getValue():
-        print("Dealer Wins")
-    elif dealer.getValue() == player1.getValue():  
-        print("Push")
-    elif dealer.getValue() < player1.getValue():  
-        print("Player wins")
+    print(dealer.winloss())
+    
+
 
 
 
