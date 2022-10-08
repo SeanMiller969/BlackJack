@@ -1,5 +1,6 @@
 import random
 #import numpy
+import matplotlib.pyplot as plt
 
 #black jack simple optmific simulation
 #main algorithim
@@ -138,7 +139,7 @@ class Player:
             print(" ", end=" ")
         print("")
     
-    def dealerPlay(self, shoe):
+    def dealerPlay(self, shoe, dealerCardValue=0):
         while True:
             if self.getValue() == -1:
                 break
@@ -158,17 +159,16 @@ class Player:
             else:
                 self.hit(shoe.deal())
 
-
-
     def reset(self):
         self.hand = list()
 
-if __name__ == "__main__":
-    shoe = Deck(1)
+def runGame(numOfDecks, playerstrat, iterations):
+    x = [0]
+    y = [50]
+
+    shoe = Deck(numOfDecks)
     shoe.shuffleDeck()
 
-    
-    
     hand = list()
     hand.append(shoe.deal())
     hand.append(shoe.deal())
@@ -178,35 +178,12 @@ if __name__ == "__main__":
     dealerHand.append(shoe.deal())
     dealerHand.append(shoe.deal())
     dealer = Player(dealerHand)
-
-
-    '''
-    for player in table:
-        while True:
-            player.printHand()
-            print(player.getValue())
-            if player.getValue() == 21:
-                print("You Win")
-                exit()
-            decision = input("hit or stand: ")
-            if decision == "hit":
-                player.hit(shoe.deal())
-                if player.getValue() == -1:
-                    player.printHand()
-                    print("Busted")
-                    exit()
-            elif decision == "stand":
-                break
-
-    '''
-
-
     
-    for i in  range(0, 1000000):
-        player.playerStratOptimalPlay(shoe, dealer.firstCardValue())
+    for i in  range(0, iterations):
+        playerstrat(player, shoe, dealer.firstCardValue())
         if player.getValue() != -1:
             dealer.dealerPlay(shoe)
-            if player.getValue() > dealer.getValue():
+            if player.getValue() > dealer.getValue() or player.getValue() == 21:
                 player.win()
                 dealer.lose()
             else:
@@ -219,21 +196,36 @@ if __name__ == "__main__":
         if shoe.cardsLeft() < 14:
             shoe = Deck(1)
             shoe.shuffleDeck()
+
         player.reset()
         player.hit(shoe.deal())
         player.hit(shoe.deal())
         dealer.reset()
         dealer.hit(shoe.deal())
         dealer.hit(shoe.deal())
-    
-    print(dealer.winloss())
-    
+
+        if i % 200 == 0 and i != 0:
+            y.append(dealer.winloss() * 100)
+            x.append(i)
+
+    print(dealer.winloss() * 100)
+    return x, y
 
 
-
-
-
-
+if __name__ == "__main__":
+    x, y = runGame(1, Player.playerStratOptimalPlay, 20000)
+    # plotting points as a scatter plot
+    plt.plot(x, y, color='blue')
+    x, y = runGame(1, Player.dealerPlay, 20000)
+    plt.plot(x, y, color='red')
+    # x-axis label
+    plt.xlabel('iterations')
+    # frequency label
+    plt.ylabel('win%')
+    # plot title
+    plt.title('winloss over time')
+    # function to show the plot
+    plt.show()
 
 
 
