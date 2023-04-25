@@ -16,6 +16,9 @@ class Player:
                 amount += 1
         return amount if amount < 21 else -1
 
+    def payout(self, amount):
+        self.stack += amount
+        
     def clear(self):
         self.hand.empty()
 

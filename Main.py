@@ -1,4 +1,5 @@
 import pydealer as pd
+import random
 from player import Player
 from const import *
 
@@ -17,23 +18,27 @@ def startGame(hands, numberOfPlayers, deck):
 def runGame():
     shoe = pd.Deck(rebuild=True, shuffle=True, ranks=BLACKJACK_RANKS)
     shoe.shuffle()
-    hands = list() 
+    players = list() 
 
     winloss = 0
-    startGame(hands, 1, shoe)
+    startGame(players, 1, shoe)
 
-    for i in range(40):
-        hands[1].playerStrategy(hands[0].hand[0], shoe)
-        if hands[1].getValue() != -1:
-            hands[0].dealerStrategy(shoe)
-            if hands[0].getValue() > hands[1].getValue():
-                winloss -= 1
+    for i in range(100):
+        betsize = 10
+        players[1].playerStrategy(players[0].hand[0], shoe)
+        if players[1].getValue() != -1:
+            players[0].dealerStrategy(shoe)
+            if players[0].getValue() > players[1].getValue():
+                players[1].payout(-betsize) 
+                betsize += betsize
             else:
-                winloss += 1
+                players[1].payout(betsize) 
+                betsize = 10
         else:
-            winloss -= 1
-        nextHand(hands, shoe)
-    print(winloss)
+            players[1].payout(-betsize) 
+            betsize += betsize
+        nextHand(players, shoe)
+    print(players[1].stack)
 
 if __name__ == "__main__":
     runGame()
