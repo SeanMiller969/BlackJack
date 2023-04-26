@@ -23,7 +23,8 @@ def runGame():
     winloss = 0
     startGame(players, 1, shoe)
 
-    for i in range(100):
+    for i in range(20):
+        players[1].shouldSplit(players[0].hand[0], shoe)
         betsize = 10
         players[1].playerStrategy(players[0].hand[0], shoe)
         if players[1].getValue() != -1:
