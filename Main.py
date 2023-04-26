@@ -15,34 +15,37 @@ def startGame(hands, numberOfPlayers, deck):
         hands[i].add_card(2, deck)
 
 
-def runGame():
+def runGame(iterations, numberOfPlayers):
     shoe = pd.Deck(rebuild=True, shuffle=True, ranks=BLACKJACK_RANKS)
     shoe.shuffle()
     players = list() 
 
     winloss = 0
-    startGame(players, 1, shoe)
+    startGame(players, numberOfPlayers, shoe)
+    dealer = players[0]
 
-    for i in range(20):
-        players[1].shouldSplit(players[0].hand[0], shoe)
-        betsize = 10
-        players[1].playerStrategy(players[0].hand[0], shoe)
-        if players[1].getValue() != -1:
-            players[0].dealerStrategy(shoe)
-            if players[0].getValue() > players[1].getValue():
-                players[1].payout(-betsize) 
-                betsize += betsize
+    for i in range(iterations):
+        for player in players[1:]:
+            player.shouldSplit(dealer.hand[0], shoe)
+            betsize = 10
+            player.playerStrategy(dealer.hand[0], shoe)
+            if player.getValue() != -1:
+                dealer.dealerStrategy(shoe)
+                if dealer.getValue() > player.getValue():
+                    player.payout(-betsize) 
+                    betsize += betsize
+                else:
+                    player.payout(betsize) 
+                    betsize = 10
             else:
-                players[1].payout(betsize) 
-                betsize = 10
-        else:
-            players[1].payout(-betsize) 
-            betsize += betsize
-        nextHand(players, shoe)
-    print(players[1].stack)
+                player.payout(-betsize) 
+                betsize += betsize
+            nextHand(players, shoe)
+    for player in players:
+        print(player.stack)
 
 if __name__ == "__main__":
-    runGame()
+    runGame(100, 2)
 
 
 
