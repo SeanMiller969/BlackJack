@@ -40,6 +40,16 @@ def runGame(iterations, numberOfPlayers):
             else:
                 player.payout(-betsize) 
                 betsize += betsize
+            if player.didWeSplit and player.getValue(True) != -1:
+                if dealer.getValue() > player.getValue(True):
+                    player.payout(-betsize) 
+                    betsize += betsize
+                else:
+                    player.payout(betsize) 
+                    betsize = 10
+            else:
+                player.payout(-betsize) 
+                betsize += betsize
             nextHand(players, shoe)
     for player in players:
         print(player.stack)
