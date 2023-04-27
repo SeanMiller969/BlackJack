@@ -1,4 +1,5 @@
 import pydealer as pd
+from pydealer import tools
 import random
 from player import Player
 from const import *
@@ -14,16 +15,26 @@ def startGame(hands, numberOfPlayers, deck):
         hands.append(Player(pd.Stack()))
         hands[i].add_card(2, deck)
 
+def createDeck(numberOfDecks):
+    #probably need to overide the pydealer deck constructor
+    deck = pd.Deck(rebuild=True, shuffle=True, ranks=BLACKJACK_RANKS)
+    for i in range(numberOfDecks - 1):
+        deck += tools.build_cards()
+    return deck
 
-def runGame(iterations, numberOfPlayers):
-    shoe = pd.Deck(rebuild=True, shuffle=True, ranks=BLACKJACK_RANKS)
-    shoe.shuffle()
+
+def runGame(iterations, numberOfPlayers, numberOfDecks):
+    shoe = createDeck(numberOfDecks)
+    # we dont retain internal args when copying?
+    shoe.rebuild = True
+    shoe.re_shuffle = True
+    shoe.shuffle(2)
     players = list() 
 
     winloss = 0
     startGame(players, numberOfPlayers, shoe)
-    dealer = players[0]
 
+    dealer = players[0]
     for i in range(iterations):
         for player in players[1:]:
             player.shouldSplit(dealer.hand[0], shoe)
@@ -50,12 +61,12 @@ def runGame(iterations, numberOfPlayers):
             else:
                 player.payout(-betsize) 
                 betsize += betsize
-            nextHand(players, shoe)
-    for player in players:
+        nextHand(players, shoe)
+    for player in players[1:]:
         print(player.stack)
 
 if __name__ == "__main__":
-    runGame(100, 2)
+    runGame(50, 2, 2)
 
 
 
