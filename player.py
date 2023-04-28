@@ -3,48 +3,43 @@ import utils
 
 class Player:
     def __init__(self, hand):
-        self.hand = hand
-        self.splithand = hand
-        self.didWeSplit = False
+        self.hands = list()
+        self.hands.append(hand)
         self.didWeDoubleDown = False
         self.stack = 1000
         self.aceInHand = False
 
-    def getValue(self, split=False):
-        amount = 0
-        self.hand.sort(ranks=BLACKJACK_RANKS) 
-        self.splithand.sort(ranks=BLACKJACK_RANKS)
-        for card in self.hand if not split else self.splithand:
-            amount += utils.val(card)
-            if amount > 21 and utils.val(card) == 11:
-                amount -= 11 
-                amount += 1
-        return amount if amount < 21 else -1
+    def getDealerCard(self):
+        return self.hands[0][0]
 
-    def payout(self, amount):
-        self.stack += amount
-        
+    def payout(self, amount, dealerValue):
+        for hand in self.hands:
+            if utils.getHandValue(hand) == -1 or utils.getHandValue(hand) < dealerValue:
+                self.stack += -amount
+            elif utils.getHandValue(hand) == dealerValue:
+                continue
+            else:
+                self.stack += amount 
+
     def clear(self):
-        self.hand.empty()
+        self.hands[0].empty()
+        while len(self.hands) != 1:
+            self.hands.pop()
 
     def hasAce(self):
-        self.aceInHand = False if utils.val(self.hand[0]) != 11 and utils.val(self.hand[1]) != 11 else True
+        self.aceInHand = False if utils.val(self.hands[0][0]) != 11 and utils.val(self.hands[0][1]) != 11 else True
         return self.aceInHand
 
-    def add_card(self, num, deck, split=False):
-        if not split:
-            self.hand += deck.deal(num)
-        else:
-            self.splithand += deck.deal(num)
+    def add_card(self, num, deck, index):
+        self.hands[index] += deck.deal(num)
     
     def shouldSplit(self, dealerCard, deck):
-        if self.hand[0].value == self.hand[1].value and RANGES["splitRange"][(utils.val(dealerCard), utils.val(self.hand[0]))]:
-            tmp = self.hand.split()
-            self.hand = tmp[0]
-            self.add_card(1, deck)
-            self.splithand = tmp[1]
-            self.add_card(1, deck, True)
-            self.didWeSplit = True
+        if self.hands[0][0].value == self.hands[0][1].value and RANGES["splitRange"][(utils.val(dealerCard), utils.val(self.hands[0][0]))]:
+            tmp = self.hands[0].split()
+            self.hands[0] = tmp[0]
+            self.add_card(1, deck, 0)
+            self.hands.append(tmp[1])
+            self.add_card(1, deck, 1)
         else:
             self.didWeSplit = False
     
@@ -52,16 +47,10 @@ class Player:
         return
 
     def dealerStrategy(self, deck):
-        while self.getValue() < 17 and self.getValue() != -1:
-            self.add_card(1, deck)
-        return self.getValue()
+        while utils.getHandValue(self.hands[0]) < 17 and utils.getHandValue(self.hands[0]) != -1:
+            self.add_card(1, deck, 0)
 
     def playerStrategy(self, dealerCard, deck):
-        while self.getValue() != -1 and RANGES["default"][(utils.val(dealerCard), self.getValue())] != 0:
-            self.add_card(1, deck)
-
-        if self.didWeSplit:
-            while self.getValue(True) != -1 and RANGES["default"][(utils.val(dealerCard), self.getValue(True))] != 0:
-                self.add_card(1, deck, True)
-
-        return self.getValue()
+        for index in range(len(self.hands)):
+            while utils.getHandValue(self.hands[index]) != -1 and RANGES["default"][(utils.val(dealerCard), utils.getHandValue(self.hands[index]))] != 0:
+                self.add_card(1, deck, index)
