@@ -8,6 +8,7 @@ class Player:
         self.didWeSplit = False
         self.didWeDoubleDown = False
         self.stack = 1000
+        self.aceInHand = False
 
     def getValue(self, split=False):
         amount = 0
@@ -25,6 +26,10 @@ class Player:
         
     def clear(self):
         self.hand.empty()
+
+    def hasAce(self):
+        self.aceInHand = False if utils.val(self.hand[0]) != 11 and utils.val(self.hand[1]) != 11 else True
+        return self.aceInHand
 
     def add_card(self, num, deck, split=False):
         if not split:

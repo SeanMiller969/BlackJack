@@ -27,6 +27,7 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
     shoe = createDeck(numberOfDecks)
     # we dont retain internal args when copying?
     shoe.rebuild = True
+    #need to make it reshuffle the proper amount of cards.
     shoe.re_shuffle = True
     shoe.shuffle(2)
     players = list() 
@@ -38,6 +39,7 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
     for i in range(iterations):
         for player in players[1:]:
             player.shouldSplit(dealer.hand[0], shoe)
+            ace = player.hasAce()
             betsize = 10
             player.playerStrategy(dealer.hand[0], shoe)
             if player.getValue() != -1:
@@ -52,6 +54,7 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
                 player.payout(-betsize) 
                 betsize += betsize
             if player.didWeSplit and player.getValue(True) != -1:
+                dealer.dealerStrategy(shoe)
                 if dealer.getValue() > player.getValue(True):
                     player.payout(-betsize) 
                     betsize += betsize
