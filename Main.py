@@ -43,14 +43,15 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
             player.shouldSplit(dealer.getDealerCard(), shoe)
             ace = player.hasAce()
             player.playerStrategy(dealer.getDealerCard(), shoe)
-            dealer.dealerStrategy(shoe)
+        dealer.dealerStrategy(shoe)
+        for player in players[1:]:
             player.payout(buyin, utils.getHandValue(dealer.hands[0]))
         nextHand(players, shoe)
     for player in players[1:]:
         print(player.stack)
 
 if __name__ == "__main__":
-    runGame(1000, 2, 2)
+    runGame(100, 2, 2)
 
 
 
