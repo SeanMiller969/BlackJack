@@ -34,6 +34,7 @@ class Player:
         self.hands[index] += deck.deal(num)
     
     def shouldSplit(self, dealerCard, deck):
+        #if player has two equal cards then they can split their hand
         if self.hands[0][0].value == self.hands[0][1].value and RANGES["splitRange"][(utils.val(dealerCard), utils.val(self.hands[0][0]))]:
             tmp = self.hands[0].split()
             self.hands[0] = tmp[0]
@@ -43,14 +44,18 @@ class Player:
         else:
             self.didWeSplit = False
     
-    def doubleDown(self):
-        return
+    def doubleDown(self, deck, betsize):
+        #check double down range
+        self.add_card(1, deck, 0)
+        return betsize * 2
 
     def dealerStrategy(self, deck):
+        #dealer always hits unless at 17
         while utils.getHandValue(self.hands[0]) < 17 and utils.getHandValue(self.hands[0]) != -1:
             self.add_card(1, deck, 0)
 
     def playerStrategy(self, dealerCard, deck):
+        #go through hands determine if hit or stand 
         for index in range(len(self.hands)):
             while utils.getHandValue(self.hands[index]) != -1 and RANGES["default"][(utils.val(dealerCard), utils.getHandValue(self.hands[index]))] != 0:
                 self.add_card(1, deck, index)
