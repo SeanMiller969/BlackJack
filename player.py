@@ -7,7 +7,6 @@ class Player:
         self.hands.append(hand)
         self.didWeDoubleDown = False
         self.stack = 1000
-        self.aceInHand = False
 
     def getDealerCard(self):
         return self.hands[0][0]
@@ -26,9 +25,8 @@ class Player:
         while len(self.hands) != 1:
             self.hands.pop()
 
-    def hasAce(self):
-        self.aceInHand = False if utils.val(self.hands[0][0]) != 11 and utils.val(self.hands[0][1]) != 11 else True
-        return self.aceInHand
+    def hasAce(self, hand):
+        return False if utils.val(hand[0]) != 11 and utils.val(hand[1]) != 11 else True
 
     def add_card(self, num, deck, index):
         self.hands[index] += deck.deal(num)
@@ -57,5 +55,9 @@ class Player:
     def playerStrategy(self, dealerCard, deck):
         #go through hands determine if hit or stand 
         for index in range(len(self.hands)):
-            while utils.getHandValue(self.hands[index]) != -1 and RANGES["default"][(utils.val(dealerCard), utils.getHandValue(self.hands[index]))] != 0:
+            whatRange = "Soft Ace" if self.hasAce(self.hands[index]) else "default"
+            while utils.getHandValue(self.hands[index]) != -1 and RANGES[whatRange][(utils.val(dealerCard), 
+                                                                                     utils.getHandValue(self.hands[index]) - 11 
+                                                                                     if whatRange == "Soft Ace" else utils.getHandValue(self.hands[index]))] != 0:
                 self.add_card(1, deck, index)
+                whatRange = "default"

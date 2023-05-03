@@ -41,7 +41,6 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
     for i in range(iterations):
         for player in players[1:]:
             player.shouldSplit(dealer.getDealerCard(), shoe)
-            ace = player.hasAce()
             player.playerStrategy(dealer.getDealerCard(), shoe)
         dealer.dealerStrategy(shoe)
         for player in players[1:]:
