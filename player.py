@@ -26,7 +26,7 @@ class Player:
             self.hands.pop()
 
     def hasAce(self, hand):
-        return False if utils.val(hand[0]) != 11 and utils.val(hand[1]) != 11 else True
+        return True if utils.val(hand[0]) == 11 ^ utils.val(hand[1]) == 11 else False
 
     def add_card(self, num, deck, index):
         self.hands[index] += deck.deal(num)
