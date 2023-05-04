@@ -1,8 +1,6 @@
 import pydealer as pd
 from pydealer import tools
-import random
 from player import Player
-import utils
 from const import *
 
 def nextHand(hands, deck):
@@ -44,7 +42,7 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
             player.playerStrategy(dealer.getDealerCard(), shoe)
         dealer.dealerStrategy(shoe)
         for player in players[1:]:
-            player.payout(buyin, utils.getHandValue(dealer.hands[0]))
+            player.payout(buyin, dealer.getHandValue(dealer.getDealerHand()))
         nextHand(players, shoe)
     for player in players[1:]:
         print(player.stack)

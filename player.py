@@ -1,5 +1,4 @@
 from const import *
-import utils
 
 class Player:
     def __init__(self, hand):
@@ -10,12 +9,28 @@ class Player:
 
     def getDealerCard(self):
         return self.hands[0][0]
+    
+    def getDealerHand(self):
+        return self.hands[0]
+    
+    def val(self, card):
+        return BLACKJACK_RANKS["values"].get(card.value)
+
+    def getHandValue(self, hand):
+        amount = 0
+        hand.sort(ranks=BLACKJACK_RANKS) 
+        for card in hand:
+            amount += self.val(card)
+            if amount > 21 and self.val(card) == 11:
+                amount -= 11 
+                amount += 1
+        return amount if amount < 21 else -1
 
     def payout(self, amount, dealerValue):
         for hand in self.hands:
-            if utils.getHandValue(hand) == -1 or utils.getHandValue(hand) < dealerValue:
+            if self.getHandValue(hand) == -1 or self.getHandValue(hand) < dealerValue:
                 self.stack += -amount
-            elif utils.getHandValue(hand) == dealerValue:
+            elif self.getHandValue(hand) == dealerValue:
                 continue
             else:
                 self.stack += amount 
@@ -26,14 +41,14 @@ class Player:
             self.hands.pop()
 
     def hasAce(self, hand):
-        return True if utils.val(hand[0]) == 11 ^ utils.val(hand[1]) == 11 else False
+        return True if self.val(hand[0]) == 11 ^ self.val(hand[1]) == 11 else False
 
     def add_card(self, num, deck, index):
         self.hands[index] += deck.deal(num)
     
     def shouldSplit(self, dealerCard, deck):
         #if player has two equal cards then they can split their hand
-        if self.hands[0][0].value == self.hands[0][1].value and RANGES["splitRange"][(utils.val(dealerCard), utils.val(self.hands[0][0]))]:
+        if self.hands[0][0].value == self.hands[0][1].value and RANGES["splitRange"][(self.val(dealerCard), self.val(self.hands[0][0]))]:
             tmp = self.hands[0].split()
             self.hands[0] = tmp[0]
             self.add_card(1, deck, 0)
@@ -49,15 +64,15 @@ class Player:
 
     def dealerStrategy(self, deck):
         #dealer always hits unless at 17
-        while utils.getHandValue(self.hands[0]) < 17 and utils.getHandValue(self.hands[0]) != -1:
+        while self.getHandValue(self.hands[0]) < 17 and self.getHandValue(self.hands[0]) != -1:
             self.add_card(1, deck, 0)
 
     def playerStrategy(self, dealerCard, deck):
         #go through hands determine if hit or stand 
         for index in range(len(self.hands)):
             whatRange = "Soft Ace" if self.hasAce(self.hands[index]) else "default"
-            while utils.getHandValue(self.hands[index]) != -1 and RANGES[whatRange][(utils.val(dealerCard), 
-                                                                                     utils.getHandValue(self.hands[index]) - 11 
-                                                                                     if whatRange == "Soft Ace" else utils.getHandValue(self.hands[index]))] != 0:
+            while self.getHandValue(self.hands[index]) != -1 and RANGES[whatRange][(self.val(dealerCard), 
+                                                                                     self.getHandValue(self.hands[index]) - 11 
+                                                                                     if whatRange == "Soft Ace" else self.getHandValue(self.hands[index]))] != 0:
                 self.add_card(1, deck, index)
                 whatRange = "default"
