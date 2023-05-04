@@ -1,4 +1,5 @@
 import pydealer as pd
+import blackJackDeck as bjd
 from pydealer import tools
 from player import Player
 from const import *
@@ -14,16 +15,8 @@ def startGame(hands, numberOfPlayers, deck):
         hands.append(Player(pd.Stack()))
         hands[i].add_card(2, deck, 0)
 
-def createDeck(numberOfDecks):
-    #probably need to overide the pydealer deck constructor
-    deck = pd.Deck(rebuild=True, shuffle=True, ranks=BLACKJACK_RANKS)
-    for i in range(numberOfDecks - 1):
-        deck += tools.build_cards()
-    return deck
-
-
 def runGame(iterations, numberOfPlayers, numberOfDecks):
-    shoe = createDeck(numberOfDecks)
+    shoe = bjd.BlackJackDeck(number_of_decks=numberOfDecks)
     # we dont retain internal args when copying?
     shoe.rebuild = True
     #need to make it reshuffle the proper amount of cards.
@@ -36,7 +29,7 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
 
     dealer = players[0]
     buyin = 10
-    for i in range(iterations):
+    for _ in range(iterations):
         for player in players[1:]:
             player.shouldSplit(dealer.getDealerCard(), shoe)
             player.playerStrategy(dealer.getDealerCard(), shoe)
