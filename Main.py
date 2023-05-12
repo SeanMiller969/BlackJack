@@ -2,7 +2,12 @@ import pydealer as pd
 import blackJackDeck as bjd
 from pydealer import tools
 from player import Player
+import matplotlib.pyplot as plt
+import numpy as np
 from const import *
+
+playerStacks = [[] for i  in range(0, 2)]
+playerBetSize = [[] for i  in range(0, 2)]
 
 def nextHand(hands, deck):
     for hand in hands:
@@ -32,16 +37,24 @@ def runGame(iterations, numberOfPlayers, numberOfDecks):
         dealer.dealerStrategy(shoe)
         index = 0
         for player in players[1:]:
+            print(buyins[index])
             buyins[index] = player.payout(buyins[index], dealer.getHandValue(dealer.getDealerHand()))
+            playerStacks[index].append(players[index + 1].stack)
+            playerBetSize[index].append(buyins[index])
             index += 1
             
         nextHand(players, shoe)
-
+        
     for player in players[1:]:
         print(player.stack)
 
 if __name__ == "__main__":
     runGame(200, 2, 2)
+    fig, ax = plt.subplots()
+    x = np.arange(0, 200)    
+    ax.plot(x, playerStacks[0], color = 'green', linewidth=2.0)
+    ax.plot(x, playerStacks[1], color = 'red', linewidth=2.0)
+    plt.show()
 
 
 

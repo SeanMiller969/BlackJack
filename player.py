@@ -5,6 +5,7 @@ class Player:
         self.hands = list()
         self.hands.append(hand)
         self.didWeDoubleDown = False
+        self.pervBetSize = 10
         self.stack = 1000
 
     def getDealerCard(self):
@@ -38,7 +39,10 @@ class Player:
                 self.stack += amount 
         
         if loss:
-            return amount * 2
+            newAmount = amount + self.pervBetSize
+            self.pervBetSize = amount
+            return newAmount
+        
         return 10
 
     def clear(self):
