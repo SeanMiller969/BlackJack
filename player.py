@@ -27,13 +27,19 @@ class Player:
         return amount if amount < 21 else -1
 
     def payout(self, amount, dealerValue):
+        loss = False
         for hand in self.hands:
             if self.getHandValue(hand) == -1 or self.getHandValue(hand) < dealerValue:
                 self.stack += -amount
+                loss = True
             elif self.getHandValue(hand) == dealerValue:
                 continue
             else:
                 self.stack += amount 
+        
+        if loss:
+            return amount * 2
+        return 10
 
     def clear(self):
         self.hands[0].empty()
@@ -41,7 +47,7 @@ class Player:
             self.hands.pop()
 
     def hasAce(self, hand):
-        return True if self.val(hand[0]) == 11 ^ self.val(hand[1]) == 11 else False
+        return True if (self.val(hand[0]) == 11) ^ (self.val(hand[1]) == 11) else False
 
     def add_card(self, num, deck, index):
         self.hands[index] += deck.deal(num)
